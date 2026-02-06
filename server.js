@@ -1,4 +1,6 @@
 /* eslint-disable no-console */
+const fs = require('fs');
+const https = require('https');
 const path = require('path');
 const crypto = require('crypto');
 const express = require('express');
@@ -144,6 +146,58 @@ function getDemoUser(req) {
   }
 
   return DEMO_USER;
+}
+
+/**
+ * Ensure hero.jpg exists by downloading from Lorem Picsum if missing.
+ * This allows the demo to show edge caching behavior with a real image.
+ */
+function ensureHeroImage() {
+  const assetsDir = path.join(__dirname, 'assets');
+  const heroPath = path.join(assetsDir, 'hero.jpg');
+
+  // Create assets directory if it doesn't exist
+  if (!fs.existsSync(assetsDir)) {
+    fs.mkdirSync(assetsDir, { recursive: true });
+  }
+
+  // If hero.jpg already exists, skip download
+  if (fs.existsSync(heroPath)) {
+    console.log('Hero image already present, skipping download.');
+    return;
+  }
+
+  // Download from Lorem Picsum (1200x600 is a good demo size)
+  const url = 'https://picsum.photos/1200/600';
+  const file = fs.createWriteStream(heroPath);
+
+  console.log('Downloading hero image from Lorem Picsum...');
+
+  https.get(url, (res) => {
+    if (res.statusCode !== 200) {
+      console.error(`Failed to fetch hero image: HTTP ${res.statusCode}`);
+      file.close();
+      // Clean up partial file on error
+      if (fs.existsSync(heroPath)) {
+        fs.unlinkSync(heroPath);
+      }
+      return;
+    }
+
+    res.pipe(file);
+
+    file.on('finish', () => {
+      file.close();
+      console.log(`Hero image downloaded successfully to ${heroPath}`);
+    });
+  }).on('error', (err) => {
+    console.error('Error fetching hero image:', err.message);
+    file.close();
+    // Clean up partial file on error
+    if (fs.existsSync(heroPath)) {
+      fs.unlinkSync(heroPath);
+    }
+  });
 }
 
 // --- Routes ---
@@ -469,7 +523,7 @@ app.get('/gallery', (req, res) => {
 <body>
   <h1>Image Gallery – Optimization Demo</h1>
   <p>
-    All images below reference the same origin file from Lorem picksum</code>, but use different query
+    All images below reference the same origin file <code>/assets/hero.jpg</code>, but use different query
     parameters as <em>hints</em> for Cloudflare Image Resizing / Optimization.
   </p>
   <p>
@@ -479,14 +533,14 @@ app.get('/gallery', (req, res) => {
   </p>
 
   <h2>Original</h2>
-  <img src="https://picsum.photos/400" alt="Hero original" style="max-width: 100%; border: 1px solid #ccc;" />
+  <img src="/assets/hero.jpg" alt="Hero original" style="max-width: 100%; border: 1px solid #ccc;" />
 
   <h2>Hints for different sizes (same origin file)</h2>
   <p>These URLs are identical on the origin, but Cloudflare can treat them differently based on query params:</p>
   <ul>
-    <li><img src="https://picsum.photos/200" alt="Hero 200w hint" /></li>
-    <li><img src="https://picsum.photos/600" alt="Hero 600w hint" /></li>
-    <li><img src="https://picsum.photos/1200&format=webp" alt="Hero 1200w WebP hint" /></li>
+    <li><img src="/assets/hero.jpg?w=200" alt="Hero 200w hint" /></li>
+    <li><img src="/assets/hero.jpg?w=600" alt="Hero 600w hint" /></li>
+    <li><img src="/assets/hero.jpg?w=1200&format=webp" alt="Hero 1200w WebP hint" /></li>
   </ul>
 
   <p>
@@ -677,6 +731,9 @@ app.use((req, res) => {
     message: 'Not found'
   });
 });
+
+// Ensure hero image exists before starting server
+ensureHeroImage();
 
 app.listen(PORT, () => {
   console.log(`Cloudflare Tester Demo listening on http://localhost:${PORT}`);
