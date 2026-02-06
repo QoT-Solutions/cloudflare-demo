@@ -469,7 +469,7 @@ app.get('/gallery', (req, res) => {
 <body>
   <h1>Image Gallery – Optimization Demo</h1>
   <p>
-    All images below reference the same origin file <code>/assets/hero.jpg</code>, but use different query
+    All images below reference the same origin file from Lorem picksum</code>, but use different query
     parameters as <em>hints</em> for Cloudflare Image Resizing / Optimization.
   </p>
   <p>
@@ -479,14 +479,14 @@ app.get('/gallery', (req, res) => {
   </p>
 
   <h2>Original</h2>
-  <img src="/assets/hero.jpg" alt="Hero original" style="max-width: 100%; border: 1px solid #ccc;" />
+  <img src="https://picsum.photos/400" alt="Hero original" style="max-width: 100%; border: 1px solid #ccc;" />
 
   <h2>Hints for different sizes (same origin file)</h2>
   <p>These URLs are identical on the origin, but Cloudflare can treat them differently based on query params:</p>
   <ul>
-    <li><img src="/assets/hero.jpg?w=200" alt="Hero 200w hint" /></li>
-    <li><img src="/assets/hero.jpg?w=600" alt="Hero 600w hint" /></li>
-    <li><img src="/assets/hero.jpg?w=1200&format=webp" alt="Hero 1200w WebP hint" /></li>
+    <li><img src="https://picsum.photos/200" alt="Hero 200w hint" /></li>
+    <li><img src="https://picsum.photos/600" alt="Hero 600w hint" /></li>
+    <li><img src="https://picsum.photos/1200&format=webp" alt="Hero 1200w WebP hint" /></li>
   </ul>
 
   <p>
