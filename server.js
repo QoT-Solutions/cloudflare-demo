@@ -160,7 +160,7 @@ app.get('/', (req, res) => {
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Cloudflare Tester Demo with Suprise!</title>
+  <title>Cloudflare Tester Demo</title>
   <style>
     body { font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; margin: 2rem; line-height: 1.5; }
     code { background: #f4f4f4; padding: 0.1rem 0.3rem; border-radius: 3px; }
@@ -173,7 +173,7 @@ app.get('/', (req, res) => {
   </style>
 </head>
 <body>
-  <h1>Cloudflare Tester Demo</h1>
+  <h1>Cloudflare Tester Demo with suprise!</h1>
   <div class="mode ${isVulnerableMode ? 'vuln' : 'safe'}">${modeLabel}</div>
 
   <p>
